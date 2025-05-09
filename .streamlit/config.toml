@@ -1,0 +1,10 @@
+[theme]
+primaryColor="#d08b00"
+backgroundColor="#2a4646"
+secondaryBackgroundColor="#1f2f22"
+textColor="#efefef"
+font="serif"
+
+
+[client]
+toolbarMode = "minimal" # Hides the default Streamlit toolbar for a cleaner PWA look

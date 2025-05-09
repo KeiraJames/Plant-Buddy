@@ -7,7 +7,7 @@
 
 Welcome to Plant Buddy, your all-in-one application for identifying plants, receiving detailed care instructions, chatting with your leafy friends, and monitoring their health!
 
-**[(https://plant-buddy.streamlit.app/)]**
+**https://plant-buddy.streamlit.app/**
 
 ---
 

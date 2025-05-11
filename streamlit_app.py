@@ -26,7 +26,7 @@ from pymongo import MongoClient
 # Replace with your actual keys and URI, or ensure api_config.py is correctly set up
 PLANTNET_API_KEY = os.environ.get("PLANTNET_API_KEY", "your_plantnet_api_key_here")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "your_gemini_api_key_here")
-MONGO_URI = os.environ.get("MONGO_URI", None) # e.g., "mongodb+srv://user:pass@cluster.mongodb.net/your_db"
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://recent:recent@cluster0.i7fqn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0") # e.g., "mongodb+srv://user:pass@cluster.mongodb.net/your_db"
 
 
 # --- Constants ---

@@ -89,7 +89,7 @@ def get_ring_html_css():
     .watch-face-grid {{ display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; margin: 20px 0; }}
     .watch-face-container {{ background-color: {WATCH_BG_COLOR}; padding: 15px; border-radius: 28px; width: 200px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: {WHITE_COLOR}; text-align: center; display: flex; flex-direction: column; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }}
     .watch-header {{ width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 5px; margin-bottom: 8px; }}
-    .ring-title {{ font-size: 15px; font-weight: 600; }} .ring-timestamp {{ font-size: 13px; color: {LIGHT_GREY_TEXT_COLOR}; display: none; }} /* Timestamp hidden */
+    .ring-title {{ font-size: 15px; font-weight: 600; }} .ring-timestamp {{ font-size: 13px; color: {LIGHT_GREY_TEXT_COLOR}; display: none; }}
     .ring-outer-circle {{ width: 130px; height: 130px; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; }}
     .ring-progress {{ width: 100%; height: 100%; border-radius: 50%; position: relative; }}
     .ring-inner-content {{ position: absolute; color: {WHITE_COLOR}; text-align: center; }}
@@ -97,17 +97,14 @@ def get_ring_html_css():
     .progress-indicator-dot {{ width: 12px; height: 12px; background-color: {WHITE_COLOR}; border-radius: 50%; border: 2px solid {WATCH_BG_COLOR}; position: absolute; top: 4px; left: 50%; transform-origin: center calc(65px - 4px); }}
     .ring-dots {{ margin-top: 8px; font-size: 16px; }} .ring-dots .dot-dim {{ color: #444; }}
     .ring-description {{ font-size: 11px; color: {LIGHT_GREY_TEXT_COLOR}; margin-top: 12px; text-align: left; width: 90%; line-height: 1.3; }}
-    /* Specific Moisture Condition Display (now used in right column of assessment) */
-    .health-assessment-right-moisture {{ text-align: center; padding-top: 10px; }} /* Added padding */
+    .health-assessment-right-moisture {{ text-align: center; padding-top: 10px; }}
     .moisture-condition-emoji-large {{ font-size: 3em; line-height: 1; }} 
     .moisture-condition-text-large {{ font-size: 1.8em; font-weight: bold; margin-top: -5px; }} 
-    .overall-health-status-text {{ font-size: 0.9em; color: #B0B0B0; margin-top: 5px; text-transform: capitalize; }} /* For Excellent, Good, etc. */
-    /* Overall Health Assessment Display */
+    .overall-health-status-text {{ font-size: 0.9em; color: #B0B0B0; margin-top: 5px; text-transform: capitalize; }}
     .health-assessment-left {{ text-align: center; padding-top: 5px; }} 
     .health-assessment-emoji {{ font-size: 3.5em; line-height: 1; margin-bottom: -8px;}} 
     .health-assessment-score {{ font-size: 2.8em; font-weight: bold; line-height: 1; margin-top: 0px; color: white; }}
     .health-assessment-caption {{ font-size: 0.8em; color: #B0B0B0; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;}} 
-    /* General Health Score Heart (used by Home Cards) */
     .health-score-heart {{ font-size: 1.5em; transition: color 0.5s ease; }} 
     .health-good {{ color: #28a745; }}       
     .health-medium {{ color: #ffc107; }}    
@@ -122,12 +119,11 @@ def get_ring_html_css():
     .stChatInputContainer > div {{ background-color: #2a4646; }}
     </style>"""
 
-def generate_ring_html(title, value_text, goal_text, progress_percent, color, track_color, timestamp_str, description, dot_index=0): # timestamp_str will be empty
-    progress_capped = max(0, min(progress_percent, 100)); dot_rotation = (progress_capped / 100) * 360
-    dots_html = "".join([f'<span style="color:{color};">•</span> ' if i == dot_index else '<span class="dot-dim">•</span> ' for i in range(3)])
-    ring_style = f"background-image: conic-gradient(from -90deg, {color} 0% {progress_capped}%, {track_color} {progress_capped}% 100%); padding: 10px;"
-    dot_style = f"transform: translateX(-50%) rotate({dot_rotation}deg);"
-    # Timestamp display is now controlled by CSS (.ring-timestamp { display: none; })
+def generate_ring_html(title, value_text, goal_text, progress_percent, color, track_color, timestamp_str, description, dot_index=0): # Unchanged
+    progress_capped=max(0,min(progress_percent,100));dot_rotation=(progress_capped/100)*360
+    dots_html="".join([f'<span style="color:{color};">•</span> ' if i==dot_index else '<span class="dot-dim">•</span> ' for i in range(3)])
+    ring_style=f"background-image:conic-gradient(from -90deg,{color} 0% {progress_capped}%,{track_color} {progress_capped}% 100%);padding:10px;"
+    dot_style=f"transform:translateX(-50%) rotate({dot_rotation}deg);"
     return f"""<div class="watch-face-container"><div class="watch-header"><span class="ring-title" style="color:{color};">{title}</span><span class="ring-timestamp">{timestamp_str}</span></div><div class="ring-outer-circle"><div class="ring-progress" style="{ring_style}"><div class="progress-indicator-dot" style="{dot_style}"></div></div><div class="ring-inner-content"><div class="ring-value">{value_text}</div><div class="ring-goal-text">{goal_text}</div></div></div><div class="ring-dots">{dots_html}</div><div class="ring-description">{description}</div></div>"""
 
 def parse_temp_range(temp_range_str): # Unchanged
@@ -160,7 +156,7 @@ def create_personality_profile(care_info): # Condensed
     traits_list=p_data.get("Traits",["observant"]);traits=[str(t) for t in traits_list if t] if isinstance(traits_list,list) else ["observant"]
     return {"title":p_data.get("Title",care_info.get('Plant Name','Plant')),"traits":", ".join(traits) or "observant","prompt":p_data.get("Prompt","Respond in character.")}
 def send_message_to_gemini(messages_for_api,image_bytes=None,image_type="image/jpeg"): # Condensed
-    if GEMINI_API_KEY=="AIzaSyCd-6N83gfhMx_-D4WCAc-8iOFSb6hDJ_Q":return "Chat disabled: Gemini API Key placeholder."
+    if GEMINI_API_KEY=="AIzaSyCd-6N83gfhMx_-D4WCAc-8iOFSb6hDJ_Q":return "Chat disabled: Gemini API Key is placeholder."
     payload_contents=list(messages_for_api)
     if image_bytes and payload_contents and payload_contents[-1]["role"]=="user":
         last_msg=payload_contents[-1];parts=last_msg.get("parts",[]);
@@ -315,20 +311,34 @@ def convert_raw_moisture_to_percentage(raw_value, raw_min_dry, raw_max_wet, inve
     if raw_max_wet == raw_min_dry: return 50 
     norm_val=(raw_value-raw_min_dry)/(raw_max_wet-raw_min_dry);percent=(1-norm_val)*100 if invert_scale else norm_val*100
     return max(0,min(100,int(percent))) 
-def calculate_health_score_component(value,ideal_min,ideal_max,lower_is_better=False): # Unchanged (condensed)
-    if value is None or ideal_min is None or ideal_max is None:return 50
+
+# --- CORRECTED calculate_health_score_component ---
+def calculate_health_score_component(value, ideal_min, ideal_max, lower_is_better=False):
+    if value is None or ideal_min is None or ideal_max is None:
+        return 50  # Neutral score for missing data
+
     if lower_is_better:
-        if value<=ideal_min:return 100;
-        if value>=ideal_max:return 0
-        return 100-((value-ideal_min)/(ideal_max-ideal_min)*100)
-    else:
-        if ideal_min<=value<=ideal_max:return 100
-        rf=0.5
-        if value<ideal_min:rb=ideal_min-(ideal_min*rf);
-        if rb<=0:rb=ideal_min/2 if ideal_min>0 else 50;return max(0,100-(((ideal_min-value)/rb)*100))
-        if value>ideal_max:ra=(ideal_max*(1+rf))-ideal_max;
-        if ra<=0:ra=ideal_max/2 if ideal_max>0 else 50;return max(0,100-(((value-ideal_max)/ra)*100))
-    return 50
+        if value <= ideal_min: return 100
+        if value >= ideal_max: return 0
+        if ideal_max == ideal_min: return 50 
+        return 100 - ((value - ideal_min) / (ideal_max - ideal_min) * 100)
+    else:  # Higher is better (within range)
+        if ideal_min <= value <= ideal_max: return 100
+        rf = 0.5 
+        if value < ideal_min:
+            rb = ideal_min - (ideal_min * rf)
+            if rb <= 0: rb = ideal_min / 2 if ideal_min > 0 else 50
+            if rb == 0 : return 0 
+            penalty = ((ideal_min - value) / rb) * 100
+            return max(0, 100 - penalty)
+        elif value > ideal_max: 
+            ra = ideal_max * rf # Simplified from (ideal_max * (1 + rf)) - ideal_max
+            if ra <= 0: ra = ideal_max / 2 if ideal_max > 0 else 50
+            if ra == 0 : return 0
+            penalty = ((value - ideal_max) / ra) * 100
+            return max(0, 100 - penalty)
+    return 50 # Fallback
+
 def calculate_overall_health(moisture_percent,temp_fahrenheit,last_check_ts,care_info): # Unchanged
     scores=[];scores.append(calculate_health_score_component(moisture_percent,40,80))
     ideal_temp_min_f,ideal_temp_max_f=(None,None)
@@ -344,10 +354,10 @@ def calculate_overall_health(moisture_percent,temp_fahrenheit,last_check_ts,care
     elif overall_score>=60:status_text="Good"
     elif overall_score>=40:status_text="Fair"
     return round(overall_score),status_text
-def get_health_score_emoji_html(score): # Returns HTML for left column of assessment
+def get_health_score_emoji_html(score): # For the main health display emoji (left column)
     heart_class="health-bad";heart_symbol="💔"
     if score>=80:heart_class="health-good";heart_symbol="❤️"
-    elif score>=60:heart_class="health-medium";heart_symbol="💛"
+    elif score>=60:heart_class="health-medium";heart_symbol="💛" # Good is Yellow/Amber
     animation_style="animation:pulse_green 1.5s infinite;" if heart_class=="health-good" else ""
     return f'<div class="health-assessment-emoji {heart_class}" style="{animation_style}">{heart_symbol}</div><div class="health-assessment-score">{score:.0f}%</div>'
 
@@ -500,7 +510,7 @@ def render_plant_health_stats_tab(plant_data_dict, plant_nickname):
     RAW_MOISTURE_MAX_EXPECTED = 700  
     MOISTURE_PERCENTAGE_INVERTED = False 
 
-    st.header("Current Health Assessment") # Title changed
+    st.header("Current Health Assessment") 
 
     if st.button("🔄 Refresh Live Sensor Data", key=f"refresh_sensor_{plant_nickname}"):
         st.toast("Attempting to fetch latest sensor data...", icon="⏳"); st.rerun()
@@ -510,14 +520,13 @@ def render_plant_health_stats_tab(plant_data_dict, plant_nickname):
     temp_celsius_current = plant_data_dict.get("temperature_celsius") 
     last_check_timestamp_current = plant_data_dict.get("last_check_timestamp", datetime.now(EASTERN_TZ) - timedelta(days=1))
     
-    # data_source_info_placeholder removed
+    # Removed data_source_info_placeholder
 
     if live_sensor_data:
         live_temp_c, live_raw_moist, live_ts = live_sensor_data.get("temperature"), live_sensor_data.get("moisture_value"), live_sensor_data.get("timestamp")
         if live_temp_c is not None: temp_celsius_current = live_temp_c
         if live_raw_moist is not None: raw_moisture_value_current = live_raw_moist
         if live_ts is not None: last_check_timestamp_current = live_ts
-        # No success/info/warning message about data source here
         st.session_state.saved_photos[plant_nickname].update({'raw_moisture_value':raw_moisture_value_current, 'temperature_celsius':temp_celsius_current, 'last_check_timestamp':last_check_timestamp_current})
     
     moisture_percentage_current = convert_raw_moisture_to_percentage(raw_moisture_value_current, RAW_MOISTURE_MIN_EXPECTED, RAW_MOISTURE_MAX_EXPECTED, MOISTURE_PERCENTAGE_INVERTED)
@@ -525,7 +534,7 @@ def render_plant_health_stats_tab(plant_data_dict, plant_nickname):
     overall_health_score, overall_health_status_text = calculate_overall_health(moisture_percentage_current, temp_fahrenheit_current, last_check_timestamp_current, plant_data_dict.get("care_info"))
     
     # --- Display Overall Health Assessment & Specific Moisture (New Layout) ---
-    col_left, col_right = st.columns([1, 1.5]) 
+    col_left, col_right = st.columns([1, 1.8]) 
 
     with col_left:
         st.markdown(f"""
@@ -534,7 +543,7 @@ def render_plant_health_stats_tab(plant_data_dict, plant_nickname):
             <div class='health-assessment-caption'>Overall Health</div>
         </div>
         """, unsafe_allow_html=True)
-        st.progress(int(overall_health_score)) # Progress bar under the overall health score
+        st.progress(int(overall_health_score)) 
 
     with col_right:
         moisture_condition_text, moisture_condition_color, moisture_condition_emoji = get_moisture_condition_from_raw(raw_moisture_value_current)
@@ -542,11 +551,11 @@ def render_plant_health_stats_tab(plant_data_dict, plant_nickname):
         <div class='health-assessment-right-moisture'> 
             <span class='moisture-condition-emoji-large' style='color:{moisture_condition_color};'>{moisture_condition_emoji}</span>
             <div class='moisture-condition-text-large' style='color:{moisture_condition_color};'>{moisture_condition_text}</div>
-            <div class='overall-health-status-text'>Overall Status: {overall_health_status_text}</div>
+            <div class='overall-health-status-text'>Overall: {overall_health_status_text}</div>
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown("---") 
+    st.markdown("---") # Divider moved below the main assessment area
 
     # --- Update Health History ---
     MAX_HISTORY, now_iso = 30, datetime.now(EASTERN_TZ).isoformat()
@@ -565,8 +574,7 @@ def render_plant_health_stats_tab(plant_data_dict, plant_nickname):
     st.divider()
     
     # --- Rings Display ---
-    # Timestamp for rings is now empty
-    sim_time_rings_display = "" # Empty string to hide timestamp in rings
+    sim_time_rings_display = "" # Timestamp hidden from rings
 
     ring1_moisture = generate_ring_html("Moisture", f"{moisture_percentage_current}%", f"OF {MOISTURE_MAX_PERCENT_FOR_RING}%", moisture_percentage_current, MOISTURE_COLOR, MOISTURE_TRACK_COLOR, sim_time_rings_display, f"Calc:{moisture_percentage_current}%. Raw:{raw_moisture_value_current if raw_moisture_value_current is not None else 'N/A'}", 0)
     temp_f_disp, temp_prog, temp_desc = "N/A", 0, "Temp data N/A."
@@ -575,7 +583,6 @@ def render_plant_health_stats_tab(plant_data_dict, plant_nickname):
         care_s, temp_rng_str = plant_data_dict.get("care_info",{}), care_s.get("Temperature Range","65-85°F"); temp_desc = f"Ambient:{temp_fahrenheit_current:.1f}°F. Ideal:{temp_rng_str or 'N/A'}."
     ring2_temp = generate_ring_html("Temperature", temp_f_disp, "°F NOW", temp_prog, TEMPERATURE_COLOR, TEMPERATURE_TRACK_COLOR, sim_time_rings_display, temp_desc, 1)
     
-    # Freshness ring still uses last_check_timestamp_current for its calculation, but won't display the time in the ring header
     if isinstance(last_check_timestamp_current,str):
         try:lcts_for_freshness=datetime.fromisoformat(last_check_timestamp_current)
         except ValueError:lcts_for_freshness=datetime.now(EASTERN_TZ)

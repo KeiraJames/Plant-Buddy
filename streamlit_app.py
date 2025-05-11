@@ -47,14 +47,11 @@ if MONGO_URI:
         mongo_client.admin.command('ping')
         db = mongo_client['temp_moisture']
         sensor_collection = db['c1']
-        # Removed sidebar status message for MongoDB connection
     except Exception as e:
-        # Removed sidebar error message for MongoDB connection
-        print(f"MongoDB Connection Error: {e}") # Log to console instead
+        print(f"MongoDB Connection Error: {e}") 
         mongo_client = None
         sensor_collection = None
 else:
-    # Removed sidebar warning for MONGO_URI not set
     print("MONGO_URI not set. Live sensor data disabled.")
 
 
@@ -104,15 +101,16 @@ def display_image_with_max_height(image_source, caption="", max_height_px=300, m
 # =======================================================
 # ===== PLANT STATS RING DISPLAY FUNCTIONS =====
 # =======================================================
-MOISTURE_COLOR = "#007AFF"; MOISTURE_TRACK_COLOR = "#2C4E6F" # Blue for moisture
+MOISTURE_COLOR = "#007AFF"; MOISTURE_TRACK_COLOR = "#2C4E6F" 
 TEMPERATURE_COLOR = "#A4E803"; TEMPERATURE_TRACK_COLOR = "#4B6A01"
-FRESHNESS_COLOR = "#FF9500"; FRESHNESS_TRACK_COLOR = "#7F4B00" # Orange for freshness
+FRESHNESS_COLOR = "#FF9500"; FRESHNESS_TRACK_COLOR = "#7F4B00" 
 WHITE_COLOR = "#FFFFFF"; LIGHT_GREY_TEXT_COLOR = "#A3A3A3"; WATCH_BG_COLOR = "#000000"
-MOISTURE_MAX_PERCENT_FOR_RING = 100 # Ring visual is 0-100%
-TEMP_DISPLAY_MAX_F = 100; TEMP_DISPLAY_MIN_F = 50 # For temp ring visual scaling
+MOISTURE_MAX_PERCENT_FOR_RING = 100 
+TEMP_DISPLAY_MAX_F = 100; TEMP_DISPLAY_MIN_F = 50 
 FRESHNESS_MAX_MINUTES_AGO = 120
 
 def get_ring_html_css():
+    # Added .health-score-heart styles back
     return f"""<style>
     .watch-face-grid {{ display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; margin: 20px 0; }}
     .watch-face-container {{ background-color: {WATCH_BG_COLOR}; padding: 15px; border-radius: 28px; width: 200px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: {WHITE_COLOR}; text-align: center; display: flex; flex-direction: column; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }}
@@ -126,11 +124,15 @@ def get_ring_html_css():
     .ring-dots {{ margin-top: 8px; font-size: 16px; }} .ring-dots .dot-dim {{ color: #444; }}
     .ring-description {{ font-size: 11px; color: {LIGHT_GREY_TEXT_COLOR}; margin-top: 12px; text-align: left; width: 90%; line-height: 1.3; }}
     .home-tab-content {{ background-color: #273D3D; padding: 15px; border-radius: 8px; }} 
-    /* Moisture condition display styles */
     .moisture-condition-display {{ text-align: center; margin-bottom: 15px; }}
-    .moisture-condition-emoji {{ font-size: 3em; }}
-    .moisture-condition-text {{ font-size: 1.8em; font-weight: bold; margin-top: -10px; }}
-    .moisture-condition-status-caption {{ font-size: 0.9em; color: grey; }}
+    .moisture-condition-emoji {{ font-size: 2.5em; }} /* Slightly smaller emoji for this */
+    .moisture-condition-text {{ font-size: 1.5em; font-weight: bold; margin-top: -8px; }} /* Adjusted margin */
+    .moisture-condition-status-caption {{ font-size: 0.8em; color: grey; }}
+    .health-score-heart {{ font-size: 2em; transition: color 0.5s ease; }} /* For overall health emoji */
+    .health-good {{ color: #28a745; }}
+    .health-medium {{ color: #ffc107; }}
+    .health-bad {{ color: #dc3545; }}
+    @keyframes pulse_green {{ 0% {{transform: scale(1);}} 50% {{transform: scale(1.1);}} 100% {{transform: scale(1);}} }}
     .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {{ font-size: 1.1rem; }}
     .stTabs [data-baseweb="tab-list"] {{ gap: 2px; }}
     .stTabs [data-baseweb="tab"] {{ height: 40px; padding: 0px 15px; background-color: #1f2f22; border-radius: 8px 8px 0 0 !important; }}
@@ -141,7 +143,7 @@ def get_ring_html_css():
     </style>"""
 
 def generate_ring_html(title, value_text, goal_text, progress_percent, color, track_color, timestamp_str, description, dot_index=0):
-    progress_capped = max(0, min(progress_percent, 100)) # Ensure progress is 0-100 for conic-gradient
+    progress_capped = max(0, min(progress_percent, 100)) 
     dot_rotation = (progress_capped / 100) * 360
     dots_html = "".join([f'<span style="color:{color};">•</span> ' if i == dot_index else '<span class="dot-dim">•</span> ' for i in range(3)])
     ring_style = f"background-image: conic-gradient(from -90deg, {color} 0% {progress_capped}%, {track_color} {progress_capped}% 100%); padding: 10px;"
@@ -159,15 +161,15 @@ def parse_temp_range(temp_range_str):
 # =======================================================
 # ===== API Functions =====
 # =======================================================
-class PlantNetAPI: # Placeholder
+class PlantNetAPI: 
     def __init__(self, api_key): self.api_key = api_key
     def identify_plant_from_bytes(self, image_bytes, filename="image.jpg"):
-        # Simplified for brevity, use your actual robust implementation
         if not self.api_key or self.api_key == "your_plantnet_api_key_here": return {'error': "PlantNet API Key missing."}
-        return {'scientific_name': 'Demo Plantus', 'common_name': 'Demo Plant', 'confidence': 85.0, 'raw_data': {}}
+        # Actual API call logic would be here
+        return {'scientific_name': 'Demo Plantus', 'common_name': 'Demo Plant', 'confidence': 85.0, 'raw_data': {}} # Placeholder
 plantnet_api_client = PlantNetAPI(api_key=PLANTNET_API_KEY)
 
-def identify_plant_wrapper(image_bytes, filename="uploaded_image.jpg"):
+def identify_plant_wrapper(image_bytes, filename="uploaded_image.jpg"): # Unchanged
     if not PLANTNET_API_KEY or PLANTNET_API_KEY == "your_plantnet_api_key_here":
         common_names_list = ["Monstera deliciosa", "Fiddle Leaf Fig", "Snake Plant"]
         sci_names_list = ["Monstera deliciosa", "Ficus lyrata", "Dracaena trifasciata"]
@@ -188,8 +190,7 @@ def send_message_to_gemini(messages_for_api, image_bytes=None, image_type="image
     if not GEMINI_API_KEY or GEMINI_API_KEY == "your_gemini_api_key_here": return "Chat disabled: Gemini API Key missing."
     payload_contents = list(messages_for_api)
     if image_bytes and payload_contents and payload_contents[-1]["role"] == "user":
-        last_user_message = payload_contents[-1]
-        last_user_message_parts = last_user_message.get("parts", [])
+        last_user_message = payload_contents[-1]; last_user_message_parts = last_user_message.get("parts", [])
         if not isinstance(last_user_message_parts, list): last_user_message_parts = [{"text": str(last_user_message_parts)}]
         img_base64 = base64.b64encode(image_bytes).decode()
         last_user_message_parts.append({"inline_data": {"mime_type": image_type, "data": img_base64}})
@@ -197,9 +198,7 @@ def send_message_to_gemini(messages_for_api, image_bytes=None, image_type="image
     payload = {"contents": payload_contents, "generationConfig": {"maxOutputTokens": 200, "temperature": 0.7}}
     headers = {"Content-Type": "application/json"}
     try:
-        r = requests.post(GEMINI_API_URL, json=payload, headers=headers, timeout=30)
-        r.raise_for_status()
-        data = r.json()
+        r = requests.post(GEMINI_API_URL, json=payload, headers=headers, timeout=30); r.raise_for_status(); data = r.json()
         if data.get('candidates') and data['candidates'][0].get('content', {}).get('parts'): return data['candidates'][0]['content']['parts'][0]['text']
         if data.get('promptFeedback', {}).get('blockReason'): return f"Response blocked: {data['promptFeedback']['blockReason']}"
         return "Unexpected response from chat model."
@@ -219,8 +218,7 @@ def get_chat_response(plant_care_info_dict, plant_id_result_dict, chat_history_l
     rules = ["RESPONSE RULES:", "1. First person (I, me, my).", "2. Embody personality.", "3. Concise (1-3 sentences).", "4. **Never break character or mention AI.**"]
     if image_bytes_for_chat: prompt_parts.append("INFO: User has provided an image. Consider it if they refer to 'this' or 'the image'.")
     if plant_care_info_dict and isinstance(plant_care_info_dict, dict):
-        p = create_personality_profile(plant_care_info_dict)
-        plant_name = plant_care_info_dict.get('Plant Name', 'a plant')
+        p = create_personality_profile(plant_care_info_dict); plant_name = plant_care_info_dict.get('Plant Name', 'a plant')
         prompt_parts.extend([f"PERSONALITY: '{p['title']}' (traits: {p['traits']}). Philosophy: {p['prompt']}", "CARE NEEDS (Use ONLY these):",
                              f"- Light: {plant_care_info_dict.get('Light Requirements', 'N/A')}", f"- Water: {plant_care_info_dict.get('Watering', 'N/A')}",
                              f"- Temp: {plant_care_info_dict.get('Temperature Range', 'N/A')}"])
@@ -239,7 +237,7 @@ def get_chat_response(plant_care_info_dict, plant_id_result_dict, chat_history_l
     return send_message_to_gemini(messages_for_api, image_bytes=image_bytes_for_chat, image_type=image_type_for_chat)
 
 # --- MongoDB Sensor Data Helper ---
-def get_latest_generic_sensor_stats(): # Unchanged, returns raw moisture and temp (assumed Celsius from DB)
+def get_latest_generic_sensor_stats(): # Unchanged
     if sensor_collection is not None: 
         try:
             latest_data = sensor_collection.find_one(sort=[('timestamp', -1)])
@@ -252,21 +250,19 @@ def get_latest_generic_sensor_stats(): # Unchanged, returns raw moisture and tem
     return None
 
 # =======================================================
-# --- Helper Functions ---
+# --- Helper Functions (Care, ID, Suggestions) ---
 # =======================================================
 @st.cache_data(show_spinner="Loading plant database...")
-def load_plant_care_data(): return SAMPLE_PLANT_CARE_DATA # Unchanged
+def load_plant_care_data(): return SAMPLE_PLANT_CARE_DATA
 
-def find_care_instructions(plant_name_id, care_data_list, threshold=75):  # Unchanged
+def find_care_instructions(plant_name_id, care_data_list, threshold=75): # Unchanged
     if not care_data_list: return None
     sci_name, common_name_str = (None, None)
     if isinstance(plant_name_id, dict): sci_name, common_name_str = plant_name_id.get('scientific_name'), plant_name_id.get('common_name')
     elif isinstance(plant_name_id, str): sci_name = plant_name_id
-    s_sci = sci_name.lower().strip() if sci_name else None
-    s_com = common_name_str.lower().strip() if common_name_str else None
+    s_sci = sci_name.lower().strip() if sci_name else None; s_com = common_name_str.lower().strip() if common_name_str else None
     for p_entry in care_data_list: 
-        db_sci_name = p_entry.get('Scientific Name','').lower().strip()
-        db_plant_name = p_entry.get('Plant Name','').lower().strip()
+        db_sci_name = p_entry.get('Scientific Name','').lower().strip(); db_plant_name = p_entry.get('Plant Name','').lower().strip()
         if s_sci and (s_sci == db_sci_name or s_sci == db_plant_name): return p_entry
         if s_com and (s_com == db_plant_name): return p_entry
         db_common_names_list = p_entry.get('Common Names',[])
@@ -277,7 +273,7 @@ def find_care_instructions(plant_name_id, care_data_list, threshold=75):  # Unch
     all_names_map = {}
     for p_obj in care_data_list:
         names_to_check = [p_obj.get('Scientific Name',''), p_obj.get('Plant Name','')]
-        c_names = p_obj.get('Common Names',[])
+        c_names = p_obj.get('Common Names',[]); 
         if isinstance(c_names, list): names_to_check.extend(c_names)
         elif isinstance(c_names, str): names_to_check.append(c_names)
         for name_str in names_to_check:
@@ -287,13 +283,11 @@ def find_care_instructions(plant_name_id, care_data_list, threshold=75):  # Unch
     for search_term in [s_sci, s_com]:
         if search_term: 
             match_result = process.extractOne(search_term, all_names_map.keys())
-            if match_result and match_result[1] >= threshold and match_result[1] > high_score: 
-                high_score = match_result[1]; best_match_plant = all_names_map.get(match_result[0])
+            if match_result and match_result[1] >= threshold and match_result[1] > high_score: high_score = match_result[1]; best_match_plant = all_names_map.get(match_result[0])
     return best_match_plant
       
 def display_identification_result_summary(result): # Unchanged
-    if not result or 'error' in result: 
-        st.error(f"Identification failed: {result.get('error', 'Unknown error') if result else 'No result.'}"); return
+    if not result or 'error' in result: st.error(f"Identification failed: {result.get('error', 'Unknown error') if result else 'No result.'}"); return
     label_style = "font-weight: bold; display: inline-block; width: 150px;" 
     sci_name = result.get('scientific_name', 'N/A')
     st.markdown(f"<span style='{label_style}'>Scientific Name:</span> <code style='background-color: #1f2f22; padding: 2px 5px; border-radius: 3px;'>{sci_name}</code>", unsafe_allow_html=True)
@@ -305,15 +299,9 @@ def display_identification_result_summary(result): # Unchanged
 
 def display_care_instructions_details(care_info): # Unchanged
     if not care_info: st.warning("No detailed care information available."); return
-    name = care_info.get('Plant Name', 'This Plant')
-    st.subheader(f"🌱 {name} Care Guide")
-    details_map = {
-        "☀️ Light": 'Light Requirements', "💧 Water": 'Watering', "🌡️ Temp": 'Temperature Range',
-        "💦 Humidity": 'Humidity Preferences', "🍃 Feeding": 'Feeding Schedule', "흙 Soil": 'Soil Type',
-        "🪴 Potting": 'Potting & Repotting', "⚠️ Toxicity": 'Toxicity', "✨ Pro Tips": 'Additional Care'
-    }
-    left_col_keys = ["☀️ Light", "💧 Water", "🌡️ Temp", "💦 Humidity"]
-    right_col_keys = ["🍃 Feeding", "흙 Soil", "🪴 Potting", "⚠️ Toxicity"]
+    name = care_info.get('Plant Name', 'This Plant'); st.subheader(f"🌱 {name} Care Guide")
+    details_map = {"☀️ Light": 'Light Requirements', "💧 Water": 'Watering', "🌡️ Temp": 'Temperature Range', "💦 Humidity": 'Humidity Preferences', "🍃 Feeding": 'Feeding Schedule', "흙 Soil": 'Soil Type', "🪴 Potting": 'Potting & Repotting', "⚠️ Toxicity": 'Toxicity', "✨ Pro Tips": 'Additional Care'}
+    left_col_keys = ["☀️ Light", "💧 Water", "🌡️ Temp", "💦 Humidity"]; right_col_keys = ["🍃 Feeding", "흙 Soil", "🪴 Potting", "⚠️ Toxicity"]
     col1, col2 = st.columns(2)
     with col1:
         for label in left_col_keys:
@@ -332,7 +320,7 @@ def find_similar_plant_matches(id_r, care_data_list, limit=3, score_thresh=60): 
     all_names_map = {}
     for p_obj in care_data_list:
         names_to_check = [p_obj.get('Scientific Name',''), p_obj.get('Plant Name','')]
-        c_names = p_obj.get('Common Names',[])
+        c_names = p_obj.get('Common Names',[]); 
         if isinstance(c_names, list): names_to_check.extend(c_names)
         elif isinstance(c_names, str): names_to_check.append(c_names)
         for name_str in names_to_check:
@@ -346,11 +334,9 @@ def find_similar_plant_matches(id_r, care_data_list, limit=3, score_thresh=60): 
             for match_name_key, score in fuzz_results:
                 if score >= score_thresh:
                     matched_plant_obj = all_names_map[match_name_key]; plant_id = id(matched_plant_obj) 
-                    if plant_id not in potential_matches or score > potential_matches[plant_id]['score']:
-                        potential_matches[plant_id] = {'plant': matched_plant_obj, 'score': score}
+                    if plant_id not in potential_matches or score > potential_matches[plant_id]['score']: potential_matches[plant_id] = {'plant': matched_plant_obj, 'score': score}
     sorted_matches = sorted(potential_matches.values(), key=lambda x: x['score'], reverse=True)
-    final_suggestions = []; seen_plant_names_for_suggestion = set()
-    original_id_name = id_r.get('common_name', id_r.get('scientific_name', '')).lower()
+    final_suggestions = []; seen_plant_names_for_suggestion = set(); original_id_name = id_r.get('common_name', id_r.get('scientific_name', '')).lower()
     for match_data in sorted_matches:
         p_info = match_data['plant']; p_sugg_name = p_info.get('Plant Name', p_info.get('Scientific Name',''))
         if p_sugg_name.lower() == original_id_name: continue
@@ -361,10 +347,10 @@ def find_similar_plant_matches(id_r, care_data_list, limit=3, score_thresh=60): 
 
 def display_suggestion_buttons_for_id_flow(suggestions, care_data): # Unchanged
     if not suggestions: return
-    st.info("📋 No exact care guide found. Perhaps one of these is a closer match from our database?")
+    st.info("📋 No exact care guide. Perhaps one of these is a closer match?")
     cols = st.columns(len(suggestions))
     for i, p_info in enumerate(suggestions):
-        p_name = p_info.get('Plant Name', p_info.get('Scientific Name', f'Suggestion {i+1}'))
+        p_name = p_info.get('Plant Name', p_info.get('Scientific Name', f'Sugg {i+1}'))
         tip = f"Select {p_name}" + (f" (Sci: {p_info.get('Scientific Name')})" if p_info.get('Scientific Name','') != p_name else "")
         if cols[i].button(p_name, key=f"id_sugg_btn_{i}", help=tip, use_container_width=True):
             new_id_result = {'scientific_name': p_info.get('Scientific Name','N/A'), 'common_name': p_name, 'confidence': 100.0, 'raw_data': {"message": "Selected from suggestion"}}
@@ -388,35 +374,79 @@ def display_chat_ui_custom(chat_history_list, chatbot_name_str, plant_care_info_
         chat_history_list.append({"role": "assistant", "content": bot_response_content, "time": datetime.now(EASTERN_TZ).strftime("%H:%M")})
         on_new_message_submit() 
 
-# --- Moisture Condition Logic ---
-def get_moisture_condition_from_raw(raw_moisture_value):
-    if raw_moisture_value is None:
-        return "Unknown", "#808080", "❓" # Grey, Question mark
+# --- Moisture & Health Score Logic ---
+def get_moisture_condition_from_raw(raw_moisture_value): # Unchanged
+    if raw_moisture_value is None: return "Unknown", "#808080", "❓"
+    if 0 <= raw_moisture_value <= 399: return "Needs Water", "#FF4B3A", "💧"
+    elif 400 <= raw_moisture_value <= 699: return "Okay", "#FFC107", "👍"
+    elif 700 <= raw_moisture_value <= 999: return "Well Hydrated", "#28A745", "✅"
+    elif raw_moisture_value >= 1000: return "Over Watered", "#17A2B8", "⚠️"
+    else: return "Check Sensor", "#6C757D", "🔧"
 
-    if 0 <= raw_moisture_value <= 399:
-        return "Needs Water", "#FF4B3A", "💧" # Red-Orange, Droplet
-    elif 400 <= raw_moisture_value <= 699:
-        return "Okay", "#FFC107", "👍" # Amber, Thumbs up
-    elif 700 <= raw_moisture_value <= 999:
-        return "Well Hydrated", "#28A745", "✅" # Green, Checkmark
-    elif raw_moisture_value >= 1000:
-        return "Over Watered", "#17A2B8", "⚠️" # Teal/Info Blue, Warning
-    else: # Should not happen if raw_moisture_value is positive
-        return "Check Sensor", "#6C757D", "🔧" # Grey, Wrench
-
-def convert_raw_moisture_to_percentage(raw_value, raw_min_dry, raw_max_wet, invert_scale=False):
-    if raw_value is None: return 0 # Default to 0% if no raw value
-    if raw_max_wet == raw_min_dry: return 50 # Avoid division by zero, return neutral
-
-    # Normalize the raw value to a 0-1 scale
+def convert_raw_moisture_to_percentage(raw_value, raw_min_dry, raw_max_wet, invert_scale=False): # Unchanged
+    if raw_value is None: return 0 
+    if raw_max_wet == raw_min_dry: return 50 
     normalized_value = (raw_value - raw_min_dry) / (raw_max_wet - raw_min_dry)
-    
-    if invert_scale: # If lower raw value means wetter (e.g., resistive sensors)
-        percentage = (1 - normalized_value) * 100
-    else: # If higher raw value means wetter (e.g., typical capacitive sensors)
-        percentage = normalized_value * 100
-        
-    return max(0, min(100, int(percentage))) # Clamp to 0-100 and convert to int
+    percentage = (1 - normalized_value) * 100 if invert_scale else normalized_value * 100
+    return max(0, min(100, int(percentage))) 
+
+# --- Reinstated Overall Health Calculation ---
+def calculate_health_score_component(value, ideal_min, ideal_max, lower_is_better=False):
+    if value is None or ideal_min is None or ideal_max is None: return 50 
+    if lower_is_better:
+        if value <= ideal_min: return 100
+        if value >= ideal_max: return 0
+        return 100 - ((value - ideal_min) / (ideal_max - ideal_min) * 100)
+    else: 
+        if ideal_min <= value <= ideal_max: return 100
+        if value < ideal_min:
+            range_below = ideal_min - (ideal_min * 0.5); 
+            if range_below <= 0: range_below = ideal_min / 2 if ideal_min > 0 else 50
+            penalty = ((ideal_min - value) / range_below) * 100
+            return max(0, 100 - penalty)
+        if value > ideal_max:
+            range_above = (ideal_max * 1.5) - ideal_max; 
+            if range_above <= 0: range_above = ideal_max / 2 if ideal_max > 0 else 50
+            penalty = ((value - ideal_max) / range_above) * 100
+            return max(0, 100 - penalty)
+    return 50 
+
+def calculate_overall_health(moisture_percent, temp_fahrenheit, last_check_ts, care_info):
+    scores = []
+    # Moisture Score (using percentage, ideal 40-80% as example)
+    scores.append(calculate_health_score_component(moisture_percent, 40, 80))
+
+    # Temperature Score (using Fahrenheit)
+    ideal_temp_min_f, ideal_temp_max_f = None, None
+    if care_info and care_info.get("Temperature Range"):
+        ideal_temp_min_f, ideal_temp_max_f = parse_temp_range(care_info["Temperature Range"])
+    scores.append(calculate_health_score_component(temp_fahrenheit, ideal_temp_min_f or 60, ideal_temp_max_f or 85)) # Default F range
+
+    # Data Freshness Score
+    mins_ago = FRESHNESS_MAX_MINUTES_AGO + 1
+    if last_check_ts:
+        if isinstance(last_check_ts, datetime):
+            last_check_ts_aware = last_check_ts.astimezone(EASTERN_TZ) if last_check_ts.tzinfo else EASTERN_TZ.localize(last_check_ts)
+            mins_ago = (datetime.now(EASTERN_TZ) - last_check_ts_aware).total_seconds() / 60
+        elif isinstance(last_check_ts, (int, float)):
+            last_check_dt = datetime.fromtimestamp(last_check_ts, tz=timezone.utc).astimezone(EASTERN_TZ)
+            mins_ago = (datetime.now(EASTERN_TZ) - last_check_dt).total_seconds() / 60
+    scores.append(calculate_health_score_component(mins_ago, 0, FRESHNESS_MAX_MINUTES_AGO, lower_is_better=True))
+
+    overall_score = sum(scores) / len(scores) if scores else 0
+    status_text = "Needs Attention"
+    if overall_score >= 80: status_text = "Excellent"
+    elif overall_score >= 60: status_text = "Good"
+    elif overall_score >= 40: status_text = "Fair"
+    return round(overall_score), status_text
+
+def get_health_score_emoji_html(score): # Reinstated
+    heart_class = "health-bad"; heart_symbol = "💔"
+    if score >= 80: heart_class = "health-good"; heart_symbol = "❤️"
+    elif score >= 50: heart_class = "health-medium"; heart_symbol = "💛"
+    animation_style = "animation: pulse_green 1.5s infinite;" if score >=80 else ""
+    # Removed "Overall Health:" text from here, will be handled by surrounding markdown
+    return f'<span class="health-score-heart {heart_class}" style="{animation_style}">{heart_symbol}</span> {score:.0f}%'
 
 
 # --- Initialize Session State ---
@@ -435,7 +465,7 @@ def initialize_session_state_V2(): # Unchanged
             else: st.session_state[k] = v
     if not st.session_state.saved_photos:
         example_plants_loaded = 0
-        try:
+        try: # Example Plant 1
             example_plant_1_path = os.path.join(os.path.dirname(__file__), "example_plant_1.jpg")
             if os.path.exists(example_plant_1_path):
                 with open(example_plant_1_path, "rb") as f1: img1_bytes = f1.read()
@@ -446,12 +476,12 @@ def initialize_session_state_V2(): # Unchanged
                     "id_result": {'scientific_name': 'Monstera deliciosa', 'common_name': 'Monstera', 'confidence': 95.0},
                     "care_info": care_info1 or (SAMPLE_PLANT_CARE_DATA[0] if SAMPLE_PLANT_CARE_DATA else {}),
                     "chat_log": [{"role": "assistant", "content": "Hello! I'm your example Monstera.", "time": ""}],
-                    "raw_moisture_value": random.randint(300,800), "temperature_celsius": random.uniform(18.0,24.0), # Storing raw moisture and Celsius
+                    "raw_moisture_value": random.randint(300,800), "temperature_celsius": random.uniform(18.0,24.0), 
                     "last_check_timestamp": datetime.now(EASTERN_TZ) - timedelta(hours=random.randint(1,5)), "health_history": []
                 }
                 example_plants_loaded +=1
         except Exception as e: print(f"Error loading example plant 1: {e}")
-        try:
+        try: # Example Plant 2
             example_plant_2_path = os.path.join(os.path.dirname(__file__), "example_plant_2.jpg")
             if os.path.exists(example_plant_2_path):
                 with open(example_plant_2_path, "rb") as f2: img2_bytes = f2.read()
@@ -461,7 +491,7 @@ def initialize_session_state_V2(): # Unchanged
                     "nickname": "Sneaky Snake", "image": f"data:image/jpg;base64,{img2_b64}",
                     "id_result": {'scientific_name': 'Dracaena trifasciata', 'common_name': 'Snake Plant', 'confidence': 92.0},
                     "care_info": care_info2 or (SAMPLE_PLANT_CARE_DATA[1] if len(SAMPLE_PLANT_CARE_DATA)>1 else {}), "chat_log": [],
-                    "raw_moisture_value": random.randint(200,600), "temperature_celsius": random.uniform(20.0,26.0), # Storing raw moisture and Celsius
+                    "raw_moisture_value": random.randint(200,600), "temperature_celsius": random.uniform(20.0,26.0), 
                     "last_check_timestamp": datetime.now(EASTERN_TZ) - timedelta(minutes=random.randint(30,180)), "health_history": []
                 }
                 example_plants_loaded +=1
@@ -477,7 +507,7 @@ def clear_current_identification_flow_data(): # Unchanged
 # =======================================================
 # ===== PAGE RENDERING FUNCTIONS =====
 # =======================================================
-def render_home_page(care_data): # Adjusted to use new moisture status for home page display
+def render_home_page(care_data): # Modified to show overall health on home cards
     st.header("🌿 Plant Buddy Dashboard")
     st.markdown("Welcome! This is your central hub for managing your plant companions. Use the actions below or the sidebar navigation to get started.")
     st.divider()
@@ -496,16 +526,34 @@ def render_home_page(care_data): # Adjusted to use new moisture status for home 
                 with cols_home[i], st.container(border=True): 
                     display_image_with_max_height(p_data.get("image",""), caption=nick, max_height_px=180, use_container_width=True, fit_contain=True)
                     
-                    # Display Moisture Condition for home page cards
-                    raw_moisture = p_data.get("raw_moisture_value")
-                    condition_text, condition_color, condition_emoji = get_moisture_condition_from_raw(raw_moisture)
-                    st.markdown(f"<p style='text-align: center;'><span style='font-size: 1.5em;'>{condition_emoji}</span> <strong style='color:{condition_color};'>{condition_text}</strong></p>", unsafe_allow_html=True)
+                    # Calculate and display Overall Health for home page cards
+                    # (Need to define these or pass them if used in convert_raw_moisture_to_percentage)
+                    RAW_MOISTURE_MIN_EXPECTED_HOME = 200 
+                    RAW_MOISTURE_MAX_EXPECTED_HOME = 700
+                    MOISTURE_PERCENTAGE_INVERTED_HOME = False
+
+                    moist_perc = convert_raw_moisture_to_percentage(
+                        p_data.get("raw_moisture_value"),
+                        RAW_MOISTURE_MIN_EXPECTED_HOME, # Use appropriate defaults or pass from config
+                        RAW_MOISTURE_MAX_EXPECTED_HOME,
+                        MOISTURE_PERCENTAGE_INVERTED_HOME
+                    )
+                    temp_c = p_data.get("temperature_celsius")
+                    temp_f = (temp_c * 9/5) + 32 if temp_c is not None else None
+                    
+                    overall_score, _ = calculate_overall_health(
+                        moist_perc, 
+                        temp_f, 
+                        p_data.get("last_check_timestamp"), 
+                        p_data.get("care_info")
+                    )
+                    st.markdown(f"<p style='text-align: center;'>{get_health_score_emoji_html(overall_score)}</p>", unsafe_allow_html=True)
                     
                     if st.button("View Details", key=f"home_view_{nick.replace(' ','_')}", use_container_width=True):
                         st.session_state.viewing_saved_plant_nickname = nick
                         st.session_state.current_nav_choice = "🪴 My Plants"; st.rerun()
 
-def render_identify_page(care_data): # Adjusted to save raw_moisture_value and temp_celsius for new plants
+def render_identify_page(care_data): # Unchanged from previous full code
     st.header("🔎 Identify a New Plant")
     up_file = st.file_uploader("Upload a clear photo of your plant to identify it:", type=["jpg","jpeg","png"], key="id_uploader_auto")
     if up_file:
@@ -558,7 +606,7 @@ def render_identify_page(care_data): # Adjusted to save raw_moisture_value and t
                                 "nickname": plant_nickname, "image": f"data:{st.session_state.current_id_image_type};base64,{img_b64}",
                                 "id_result": st.session_state.current_id_result, "care_info": st.session_state.current_id_care_info,
                                 "chat_log": st.session_state.current_id_chat_history,
-                                "raw_moisture_value": random.randint(200,900), "temperature_celsius": random.uniform(18.0, 25.0), # Default raw sensor values
+                                "raw_moisture_value": random.randint(200,900), "temperature_celsius": random.uniform(18.0, 25.0), 
                                 "last_check_timestamp": datetime.now(EASTERN_TZ) - timedelta(hours=random.randint(1,3)), "health_history": []
                             }
                             st.success(f"'{plant_nickname}' saved!"); st.balloons(); prev_nick_saved = plant_nickname 
@@ -568,7 +616,7 @@ def render_identify_page(care_data): # Adjusted to save raw_moisture_value and t
     elif up_file and not st.session_state.current_id_result: st.warning("Could not identify the plant.")
     else: st.info("Upload an image above to automatically identify your plant.")
 
-def render_my_plants_page(care_data): # Adjusted gallery view to use new moisture status
+def render_my_plants_page(care_data): # Modified gallery view to use overall health
     st.header("🪴 My Saved Plant Profiles")
     nick_to_view = st.session_state.get("viewing_saved_plant_nickname")
     if not st.session_state.saved_photos: st.info("You haven't saved any plants yet."); return
@@ -613,38 +661,46 @@ def render_my_plants_page(care_data): # Adjusted gallery view to use new moistur
                         id_res_g = data.get("id_result",{}); com_n_g=id_res_g.get('common_name','N/A')
                         if com_n_g and com_n_g!='N/A' and com_n_g.lower()!=nick.lower(): st.caption(f"({com_n_g})")
                         
-                        raw_moisture_gallery = data.get("raw_moisture_value")
-                        cond_text, cond_color, cond_emoji = get_moisture_condition_from_raw(raw_moisture_gallery)
-                        st.markdown(f"<p style='text-align: center;'><span style='font-size: 1.5em;'>{cond_emoji}</span> <strong style='color:{cond_color};'>{cond_text}</strong></p>", unsafe_allow_html=True)
+                        # Calculate and display Overall Health for gallery cards
+                        RAW_MOISTURE_MIN_EXPECTED_GALLERY = 200 
+                        RAW_MOISTURE_MAX_EXPECTED_GALLERY = 700
+                        MOISTURE_PERCENTAGE_INVERTED_GALLERY = False
+                        moist_perc_g = convert_raw_moisture_to_percentage(
+                            data.get("raw_moisture_value"),
+                            RAW_MOISTURE_MIN_EXPECTED_GALLERY, 
+                            RAW_MOISTURE_MAX_EXPECTED_GALLERY,
+                            MOISTURE_PERCENTAGE_INVERTED_GALLERY
+                        )
+                        temp_c_g = data.get("temperature_celsius")
+                        temp_f_g = (temp_c_g * 9/5) + 32 if temp_c_g is not None else None
+                        overall_score_g, _ = calculate_overall_health(moist_perc_g, temp_f_g, data.get("last_check_timestamp"), data.get("care_info"))
+                        st.markdown(f"<p style='text-align: center;'>{get_health_score_emoji_html(overall_score_g)}</p>", unsafe_allow_html=True)
                         
                         if st.button("View Details",key=f"gallery_detail_{nick.replace(' ','_')}",use_container_width=True): st.session_state.viewing_saved_plant_nickname=nick; st.rerun()
 
 def render_plant_health_stats_tab(plant_data_dict, plant_nickname):
-    st.subheader("Current Plant Condition")
-
     # IMPORTANT: Adjust these to your sensor's typical raw range!
-    # RAW_MOISTURE_MIN_EXPECTED is the reading in very dry air/soil.
-    # RAW_MOISTURE_MAX_EXPECTED is the reading in very wet soil/water.
-    RAW_MOISTURE_MIN_EXPECTED = 200  # Example: sensor reads ~200 when dry
-    RAW_MOISTURE_MAX_EXPECTED = 700  # Example: sensor reads ~700 when wet
-    # Set True if your sensor's raw value DECREASES with MORE moisture
+    RAW_MOISTURE_MIN_EXPECTED = 200  # Example: sensor reads ~200 when dry (e.g. in air)
+    RAW_MOISTURE_MAX_EXPECTED = 700  # Example: sensor reads ~700 when wet (e.g. in water)
+    # Set True if your sensor's raw value DECREASES with MORE moisture (common for resistive)
+    # Set False if raw value INCREASES with MORE moisture (common for capacitive)
     MOISTURE_PERCENTAGE_INVERTED = False 
 
+    st.subheader("Current Plant Status")
 
     if st.button("🔄 Refresh Live Sensor Data", key=f"refresh_sensor_{plant_nickname}"):
         st.toast("Attempting to fetch latest sensor data...", icon="⏳")
 
     live_sensor_data = get_latest_generic_sensor_stats()
 
-    # Initialize with values from plant_data_dict (saved/default values)
-    raw_moisture_value_current = plant_data_dict.get("raw_moisture_value", 300) # Default if not present
-    temp_celsius_current = plant_data_dict.get("temperature_celsius") # Could be None
+    raw_moisture_value_current = plant_data_dict.get("raw_moisture_value", 300) 
+    temp_celsius_current = plant_data_dict.get("temperature_celsius") 
     last_check_timestamp_current = plant_data_dict.get("last_check_timestamp", datetime.now(EASTERN_TZ) - timedelta(days=1))
     
     data_source_info_placeholder = st.empty()
 
     if live_sensor_data:
-        live_temp_c = live_sensor_data.get("temperature") # Assumed Celsius from DB
+        live_temp_c = live_sensor_data.get("temperature") 
         live_raw_moist = live_sensor_data.get("moisture_value")
         live_ts = live_sensor_data.get("timestamp")
 
@@ -658,7 +714,6 @@ def render_plant_health_stats_tab(plant_data_dict, plant_nickname):
             display_ts_str = live_ts_aware.strftime('%b %d, %H:%M %Z')
         
         data_source_info_placeholder.success(f"🌿 Live sensor data from: {display_ts_str}")
-        # Update session state with the latest live data to persist it
         st.session_state.saved_photos[plant_nickname]['raw_moisture_value'] = raw_moisture_value_current
         st.session_state.saved_photos[plant_nickname]['temperature_celsius'] = temp_celsius_current
         st.session_state.saved_photos[plant_nickname]['last_check_timestamp'] = last_check_timestamp_current
@@ -667,87 +722,88 @@ def render_plant_health_stats_tab(plant_data_dict, plant_nickname):
     else: 
         data_source_info_placeholder.warning("No live sensor data found. Displaying last saved/default data.")
 
-    # --- Determine Moisture Condition based on RAW value ---
-    condition_text, condition_color, condition_emoji = get_moisture_condition_from_raw(raw_moisture_value_current)
-
-    # --- Display Main Moisture Condition ---
-    st.markdown(f"""
-    <div class="moisture-condition-display">
-        <span class="moisture-condition-emoji" style="color:{condition_color};">{condition_emoji}</span>
-        <div class="moisture-condition-text" style="color:{condition_color};">{condition_text}</div>
-        <div class="moisture-condition-status-caption">Based on current soil moisture</div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # --- Convert raw moisture to percentage for ring and history chart ---
+    # --- Convert current raw moisture to percentage ---
     moisture_percentage_current = convert_raw_moisture_to_percentage(
-        raw_moisture_value_current, 
-        RAW_MOISTURE_MIN_EXPECTED, 
-        RAW_MOISTURE_MAX_EXPECTED,
-        MOISTURE_PERCENTAGE_INVERTED
+        raw_moisture_value_current, RAW_MOISTURE_MIN_EXPECTED, RAW_MOISTURE_MAX_EXPECTED, MOISTURE_PERCENTAGE_INVERTED
     )
+    # --- Convert current Celsius temp to Fahrenheit ---
+    temp_fahrenheit_current = (temp_celsius_current * 9/5) + 32 if temp_celsius_current is not None else None
 
-    # --- Update Health History (now stores moisture_percentage_current) ---
-    MAX_HISTORY = 30
-    now_iso = datetime.now(EASTERN_TZ).isoformat()
-    if 'health_history' not in plant_data_dict: plant_data_dict['health_history'] = []
+    # --- Calculate Overall Health ---
+    overall_health_score, overall_health_status_text = calculate_overall_health(
+        moisture_percentage_current,
+        temp_fahrenheit_current,
+        last_check_timestamp_current,
+        plant_data_dict.get("care_info")
+    )
     
-    # Add to history if the value changed or enough time passed
+    # --- Determine Specific Moisture Condition based on RAW value ---
+    moisture_condition_text, moisture_condition_color, moisture_condition_emoji = get_moisture_condition_from_raw(raw_moisture_value_current)
+
+    # --- Display Overall Health and Moisture Condition in Columns ---
+    col_health, col_moisture_cond = st.columns(2)
+
+    with col_health:
+        st.markdown("##### Overall Health")
+        st.markdown(get_health_score_emoji_html(overall_health_score), unsafe_allow_html=True)
+        st.progress(int(overall_health_score))
+        st.caption(f"Status: {overall_health_status_text}")
+        
+    with col_moisture_cond:
+        st.markdown("##### Moisture Status")
+        st.markdown(f"""
+        <div class="moisture-condition-display" style="margin-bottom: 0px;"> <!-- Reduced bottom margin -->
+            <span class="moisture-condition-emoji" style="color:{moisture_condition_color};">{moisture_condition_emoji}</span>
+            <div class="moisture-condition-text" style="color:{moisture_condition_color}; margin-top: -10px;">{moisture_condition_text}</div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.caption(f"Raw sensor: {raw_moisture_value_current if raw_moisture_value_current is not None else 'N/A'}")
+
+
+    # --- Update Health History (still stores moisture_percentage_current for the chart) ---
+    MAX_HISTORY = 30; now_iso = datetime.now(EASTERN_TZ).isoformat()
+    if 'health_history' not in plant_data_dict: plant_data_dict['health_history'] = []
     add_new_to_history = True
     if plant_data_dict['health_history']:
         last_ts_str_hist, last_val_hist = plant_data_dict['health_history'][-1]
         try: last_dt_hist = datetime.fromisoformat(last_ts_str_hist)
         except ValueError: last_dt_hist = datetime.now(EASTERN_TZ) - timedelta(days=1)
-        # Only add if value changed OR more than an hour passed to avoid too many similar entries
         if last_val_hist == moisture_percentage_current and (datetime.now(EASTERN_TZ) - last_dt_hist).total_seconds() < 3600:
             add_new_to_history = False
-            
     if add_new_to_history:
-         plant_data_dict['health_history'].append((now_iso, moisture_percentage_current)) # Store percentage
+         plant_data_dict['health_history'].append((now_iso, moisture_percentage_current)) 
          plant_data_dict['health_history'] = plant_data_dict['health_history'][-MAX_HISTORY:]
          st.session_state.saved_photos[plant_nickname]['health_history'] = plant_data_dict['health_history']
     
     st.divider()
     
     # --- Rings Display ---
-    # Ensure timestamp is datetime and timezone-aware for display
     if isinstance(last_check_timestamp_current, str):
         try: last_check_ts_for_ring = datetime.fromisoformat(last_check_timestamp_current)
         except ValueError: last_check_ts_for_ring = datetime.now(EASTERN_TZ) 
     elif isinstance(last_check_timestamp_current, (int, float)): 
         last_check_ts_for_ring = datetime.fromtimestamp(last_check_timestamp_current, tz=timezone.utc)
     else: last_check_ts_for_ring = last_check_timestamp_current
-
     if last_check_ts_for_ring.tzinfo is None: last_check_ts_for_ring = EASTERN_TZ.localize(last_check_ts_for_ring)
     else: last_check_ts_for_ring = last_check_ts_for_ring.astimezone(EASTERN_TZ)
     sim_time_rings_display = last_check_ts_for_ring.strftime('%H:%M')
 
-    # Moisture Ring (uses calculated percentage)
     ring1_moisture = generate_ring_html("Moisture", f"{moisture_percentage_current}%", f"OF {MOISTURE_MAX_PERCENT_FOR_RING}%", 
                                         moisture_percentage_current, MOISTURE_COLOR, MOISTURE_TRACK_COLOR, 
                                         sim_time_rings_display, f"Calculated: {moisture_percentage_current}%. Raw: {raw_moisture_value_current if raw_moisture_value_current is not None else 'N/A'}", 0)
     
-    # Temperature Ring (converts Celsius to Fahrenheit for display)
-    temp_fahrenheit_display = "N/A"
-    temp_progress_for_ring = 0 # Default progress if no temp data
-    temp_description = "Temperature data unavailable."
-
-    if temp_celsius_current is not None:
-        temp_fahrenheit_display_val = (temp_celsius_current * 9/5) + 32
-        temp_fahrenheit_display = f"{temp_fahrenheit_display_val:.0f}" # Display as int
-        # Scale Fahrenheit value for ring progress (0-100%) based on display min/max F
-        temp_progress_for_ring = ((temp_fahrenheit_display_val - TEMP_DISPLAY_MIN_F) / (TEMP_DISPLAY_MAX_F - TEMP_DISPLAY_MIN_F)) * 100
-        temp_progress_for_ring = max(0, min(100, temp_progress_for_ring)) # Clamp
-        
-        care_s = plant_data_dict.get("care_info", {})
-        temp_rng_str = care_s.get("Temperature Range", "65-85°F") # Ideal range in F from care guide
-        temp_description = f"Ambient: {temp_fahrenheit_display_val:.1f}°F. Ideal: {temp_rng_str or 'N/A'}."
+    temp_fahrenheit_display_for_ring = "N/A"; temp_progress_for_ring = 0; temp_description_for_ring = "Temp data N/A."
+    if temp_fahrenheit_current is not None:
+        temp_fahrenheit_display_for_ring = f"{temp_fahrenheit_current:.0f}"
+        temp_progress_for_ring = ((temp_fahrenheit_current - TEMP_DISPLAY_MIN_F) / (TEMP_DISPLAY_MAX_F - TEMP_DISPLAY_MIN_F)) * 100
+        temp_progress_for_ring = max(0, min(100, temp_progress_for_ring))
+        care_s = plant_data_dict.get("care_info", {}); temp_rng_str = care_s.get("Temperature Range", "65-85°F")
+        temp_description_for_ring = f"Ambient: {temp_fahrenheit_current:.1f}°F. Ideal: {temp_rng_str or 'N/A'}."
     
-    ring2_temp = generate_ring_html("Temperature", temp_fahrenheit_display, "°F NOW", temp_progress_for_ring, 
+    ring2_temp = generate_ring_html("Temperature", temp_fahrenheit_display_for_ring, "°F NOW", temp_progress_for_ring, 
                                     TEMPERATURE_COLOR, TEMPERATURE_TRACK_COLOR, sim_time_rings_display, 
-                                    temp_description, 1)
+                                    temp_description_for_ring, 1)
     
-    # Freshness Ring
     mins_ago_plant = int((datetime.now(EASTERN_TZ) - last_check_ts_for_ring).total_seconds() / 60)
     fresh_prog_plant = max(0, (1 - (min(mins_ago_plant, FRESHNESS_MAX_MINUTES_AGO) / FRESHNESS_MAX_MINUTES_AGO))) * 100
     ring3_fresh = generate_ring_html("Last Update", str(mins_ago_plant), "MINS AGO", fresh_prog_plant, 
@@ -756,26 +812,22 @@ def render_plant_health_stats_tab(plant_data_dict, plant_nickname):
     
     st.markdown(f'<div class="watch-face-grid">{ring1_moisture}{ring2_temp}{ring3_fresh}</div>', unsafe_allow_html=True)
     st.divider()
-
     st.subheader("📈 Moisture Level (%) Over Time")
-    health_hist_data = plant_data_dict.get("health_history", []) # Now contains (timestamp, moisture_percentage)
+    health_hist_data = plant_data_dict.get("health_history", [])
     if health_hist_data and len(health_hist_data) > 1 :
         df_hist = pd.DataFrame(health_hist_data, columns=['Timestamp', 'Moisture Percentage'])
         try:
             df_hist['Timestamp'] = pd.to_datetime(df_hist['Timestamp'])
-            df_hist = df_hist.set_index('Timestamp')
-            st.line_chart(df_hist['Moisture Percentage'])
+            df_hist = df_hist.set_index('Timestamp'); st.line_chart(df_hist['Moisture Percentage'])
         except Exception as e: st.warning(f"Could not display moisture history chart: {e}")
     else: st.info("Not enough moisture history recorded yet to display a chart.")
 
 
 # --- Main App Logic ---
-def main(): # Mostly unchanged, sidebar messages for API keys already removed from here previously
+def main(): # Unchanged
     st.markdown(f'<link rel="manifest" href="manifest.json">', unsafe_allow_html=True)
-    initialize_session_state_V2()
-    st.markdown(get_ring_html_css(), unsafe_allow_html=True)
-    st.sidebar.title("📚 Plant Buddy")
-    st.sidebar.divider()
+    initialize_session_state_V2(); st.markdown(get_ring_html_css(), unsafe_allow_html=True)
+    st.sidebar.title("📚 Plant Buddy"); st.sidebar.divider()
     default_welcome_msg = "Welcome to Plant Buddy! Your companion for plant care, identification, and health tracking. Let's get growing!"
     if not st.session_state.welcome_response_generated:
         if GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here":
@@ -808,5 +860,4 @@ def main(): # Mostly unchanged, sidebar messages for API keys already removed fr
 if __name__ == "__main__":
     if not PLANTNET_API_KEY or PLANTNET_API_KEY == "your_plantnet_api_key_here": st.toast("PlantNet API Key missing. ID in demo mode.", icon="⚠️")
     if not GEMINI_API_KEY or GEMINI_API_KEY == "your_gemini_api_key_here": st.toast("Gemini API Key missing. Chat limited.", icon="⚠️")
-    # MONGO_URI check is implicitly handled by `sensor_collection` being None or not.
     main()
